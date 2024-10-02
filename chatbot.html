@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <link href="prism.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --text-color: #333;
+            --link-color: #0066cc;
+            --button-bg: #4a90e2;
+            --button-text: #ffffff;
+            --input-bg: #ffffff;
+            --input-border: #d1d9e6;
+            --chat-bg: #e1e8ed;
+            --user-message-bg: #4a90e2;
+            --bot-message-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --link-color: #6ab0f3;
+            --button-bg: #3a7bd5;
+            --button-text: #ffffff;
+            --input-bg: #2c2c2c;
+            --input-border: #444444;
+            --chat-bg: #2c2c2c;
+            --user-message-bg: #3a7bd5;
+            --bot-message-bg: #383838;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1 {
+            font-weight: 700;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--input-border);
+            padding-bottom: 10px;
+        }
+
+        #chatbox {
+            height: 500px;
+            border: 1px solid var(--input-border);
+            background-color: var(--chat-bg);
+            overflow-y: scroll;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        #userInput, #apiKeyInput {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-radius: 4px;
+        }
+
+        #sendButton, #themeToggle {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        #sendButton:hover, #themeToggle:hover {
+            opacity: 0.9;
+        }
+
+        #themeToggle {
+            float: right;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .user-message {
+            background-color: var(--user-message-bg);
+            color: var(--button-text);
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background-color: var(--bot-message-bg);
+            color: var(--text-color);
+            align-self: flex-start;
+        }
+
+        .message strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .message-content {
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .message-content p {
+            margin: 0 0 15px 0;
+        }
+
+        .message-content h1, .message-content h2, .message-content h3, 
+        .message-content h4, .message-content h5, .message-content h6 {
+            margin: 15px 0 10px 0;
+            line-height: 1.2;
+        }
+
+        .message-content ul, .message-content ol {
+            margin: 0 0 15px 20px;
+            padding-left: 20px;
+        }
+
+        .message-content li {
+            margin-bottom: 5px;
+        }
+
+        .message-content blockquote {
+            border-left: 4px solid #ccc;
+            margin: 0 0 15px 0;
+            padding: 5px 15px;
+            color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .message-content pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 0 0 15px 0;
+        }
+
+        .message-content code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .message-content pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        .message-content table {
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .message-content th, .message-content td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .message-content th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .message-content img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .message-content hr {
+            border: 0;
+            border-top: 1px solid #ddd;
+            margin: 15px 0;
+        }
+
+        #generateAudioButton {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+        #generateAudioButton:hover {
+            background-color: #45a049;
+        }
+        #audioPlayer {
+            width: 100%;
+            margin-top: 10px;
+            display: none;
+        }
+        #audioControls {
+            margin-top: 10px;
+            display: none;
+        }
+        #progressBar {
+            width: 100%;
+            height: 10px;
+            background-color: #ddd;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        #progress {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.1s;
+        }
+        #playPauseButton, #stopButton, #restartButton {
+            background-color: #008CBA;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-right: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #playPauseButton:hover, #stopButton:hover, #restartButton:hover {
+            background-color: #007B9A;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <button id="themeToggle">Toggle Theme</button>
+    <input type="password" id="apiKeyInput" placeholder="Enter your Google API key">
+    <div id="chatbox"></div>
+    <input type="text" id="userInput" placeholder="Type your message...">
+    <button id="sendButton">Send</button>
+    <button id="generateAudioButton">Generate Podcast</button>
+    <div id="audioLinkContainer"></div>
+    <script src="prism.min.js"></script>
+    <script src="marked.min.js"></script>
+    <script src="lame.min.js"></script>
+    <script src="chatbot.js"></script>
+</body>
+</html>
