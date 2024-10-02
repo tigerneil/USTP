@@ -4,10 +4,10 @@ Use Superintelligent Tabot Please!
 We make tab management to another level with the power from Google Gemini. 
 You can discuss with the tabs now! 
 
-[](a.png)
+[](images/a.png)
 
-[](b.png)
+[](images/b.png)
 
-[](c.png)
+[](images/c.png)
 
-[](d.png)
+[](images/d.png)
