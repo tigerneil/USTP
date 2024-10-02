@@ -6,19 +6,83 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggle = document.getElementById('themeToggle');
 
     
+    const summarizeAllButton = document.getElementById('summarizeAllButton');
+    summarizeAllButton.addEventListener('click', summarizeAllTabs);
+
+    if (summarizeAllButton) {
+        summarizeAllButton.addEventListener('click', summarizeAllTabs);
+    } else {
+        console.error('Summarize All button not found');
+    }
+
+    async function summarizeAllTabs() {
+        const apiKey = apiKeyInput.value.trim();
+        if (!apiKey) {
+            alert("Please enter your Google API key.");
+            return;
+        }
+
+        if (summaryDiv) {
+            summarizeAllButton.disabled = true;
+            summaryDiv.textContent = "Generating summaries...";
+        } else {
+            console.error('Summary div not found');
+            return;
+        }
+
+        try {
+                    // Step 1: Summarize each page asynchronously
+            // const summaryPromises = savedTabs.map(async (tab, index) => {
+            //     const content = await fetchContent(tab.url);
+            //     const summary = await generateSummary(content, apiKey);
+            //     savedTabs[index].summary = summary;
+            //     renderTabs(); // Update UI with individual summaries
+            //     return summary;
+            // });
+            const existingSummaries = savedTabs.map(tab => tab.summary).filter(summary => summary);
+
+
+            // const summaries = await Promise.all(summaryPromises);
+
+            // Step 2: Summarize the summaries
+            const finalSummary = await generateSummary(existingSummaries.join("\n\n"), apiKey);
+        
+            // Render the final summary as Markdown
+            summaryDiv.innerHTML = marked.parse(finalSummary);
+
+            // Save the updated tabs with summaries
+            chrome.storage.local.set({ savedTabs: savedTabs });
+        } catch (error) {
+            console.error("Error generating summaries:", error);
+            if (summaryDiv) {
+                summaryDiv.textContent = "Error generating summaries. Please try again.";
+            }
+        } finally {
+            if (summarizeAllButton) {
+                summarizeAllButton.disabled = false;
+            }
+        }
+    }
+
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('dark-theme');
 
             // Save the theme preference
             const isDarkTheme = document.body.classList.contains('dark-theme');
-            localStorage.setItem('darkTheme', isDarkTheme);
+            localStorage.setItem('dark-theme', isDarkTheme);
+
+            // Toggle the "Summarize All" button class
+            const summarizeAllButton = document.getElementById('summarizeAllButton');
+            summarizeAllButton.classList.toggle('dark-theme');
         });
 
         // Load saved theme preference
-        const savedTheme = localStorage.getItem('darkTheme');
+        const savedTheme = localStorage.getItem('dark-theme');
         if (savedTheme === 'true') {
             document.body.classList.add('dark-theme');
+            const summarizeAllButton = document.getElementById('summarizeAllButton');
+            summarizeAllButton.classList.add('dark-theme');
         }
     } else {
         console.error('Theme toggle button not found');
@@ -206,3 +270,50 @@ async function generateSummary(content, apiKey, retries = 10) {
     }
     throw new Error("Max retries reached. Please try again later.");
 }
+
+// async function summarizeAllTabs() {
+//     const apiKey = apiKeyInput.value.trim();
+//     if (!apiKey) {
+//         alert("Please enter your Google API key.");
+//         return;
+//     }
+
+//     if (summaryDiv) {
+//         summarizeAllButton.disabled = true;
+//         summaryDiv.textContent = "Generating summaries...";
+//     } else {
+//         console.error('Summary div not found');
+//         return;
+//     }
+
+//     try {
+//         // Step 1: Summarize each page asynchronously
+//         const summaryPromises = savedTabs.map(async (tab, index) => {
+//             const content = await fetchContent(tab.url);
+//             const summary = await generateSummary(content, apiKey);
+//             savedTabs[index].summary = summary;
+//             renderTabs(); // Update UI with individual summaries
+//             return summary;
+//         });
+
+//         const summaries = await Promise.all(summaryPromises);
+
+//         // Step 2: Summarize the summaries
+//         const finalSummary = await generateSummary(summaries.join("\n\n"), apiKey);
+
+//         // Render the final summary as Markdown
+//         summaryDiv.innerHTML = marked.parse(finalSummary);
+
+//         // Save the updated tabs with summaries
+//         chrome.storage.local.set({ savedTabs: savedTabs });
+//     } catch (error) {
+//         console.error("Error generating summaries:", error);
+//         if (summaryDiv) {
+//             summaryDiv.textContent = "Error generating summaries. Please try again.";
+//         }
+//     } finally {
+//         if (summarizeAllButton) {
+//             summarizeAllButton.disabled = false;
+//         }
+//     }
+// }
