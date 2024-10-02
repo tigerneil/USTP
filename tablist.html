@@ -41,7 +41,17 @@
             --border-color: #d1d9e6;
         }
 
-        [data-theme="dark"] {
+        body {
+            font-family: 'Roboto', sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-theme {
             --bg-color: #1a1a1a;
             --text-color: #e0e0e0;
             --link-color: #6ab0f3;
@@ -51,16 +61,6 @@
             --delete-button-hover: #b71c1c;
             --summary-bg: #2c2c2c;
             --border-color: #444444;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
         }
 
         h1 {

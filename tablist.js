@@ -3,6 +3,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const summarizeButton = document.getElementById('summarizeButton');
     const summaryDiv = document.getElementById('summary');
     const apiKeyInput = document.getElementById('apiKeyInput');
+    const themeToggle = document.getElementById('themeToggle');
+
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+
+            // Save the theme preference
+            const isDarkTheme = document.body.classList.contains('dark-theme');
+            localStorage.setItem('darkTheme', isDarkTheme);
+        });
+
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('darkTheme');
+        if (savedTheme === 'true') {
+            document.body.classList.add('dark-theme');
+        }
+    } else {
+        console.error('Theme toggle button not found');
+    }
+
     let savedTabs = [];
 
     function loadTabs() {
