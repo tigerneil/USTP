@@ -4,10 +4,10 @@ Use Superintelligent Tabot Please!
 We make tab management to another level with the power from Google Gemini. 
 You can discuss with the tabs now! 
 
-[](images/a.png)
+![Gathered Tabs List](images/b.png)
 
-[](images/b.png)
+![Summarize gathered tabs](images/a.png)
 
-[](images/c.png)
+![Summarized All](images/c.png)
 
-[](images/d.png)
+![Chat with a specific tab](images/d.png)
