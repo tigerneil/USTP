@@ -65,16 +65,24 @@ Instead of treating tabs like disposable clutter, USTP lets you capture a whole 
 - Protected pages, heavily client-rendered pages, or sites that block fetch requests can still produce incomplete context.
 - Large live sources may be trimmed before being sent to the model.
 
-## Existing interface snapshots
+## Screenshots
 
-Workspace view:
+Popup launch pad:
 
-![Workspace view](images/b.png)
+![Popup launch pad](images/1.png)
 
-Summary flow:
+Popup flow and actions:
 
-![Summary flow](images/c.png)
+![Popup flow and actions](images/2.png)
 
-Chat view:
+Workspace overview:
 
-![Chat view](images/d.png)
+![Workspace overview](images/3.png)
+
+Captured pages, summaries, and skills:
+
+![Captured pages, summaries, and skills](images/4.png)
+
+Source-grounded chat:
+
+![Source-grounded chat](images/5.png)
