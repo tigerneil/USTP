@@ -1,23 +1,617 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Tab Gatherer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USTP</title>
     <style>
-        body {
-            width: 200px;
-            padding: 10px;
-            font-family: Arial, sans-serif;
+        @font-face {
+            font-family: 'Roboto';
+            src: url('fonts/roboto-light.woff2') format('woff2'),
+                url('fonts/roboto-light.woff') format('woff');
+            font-weight: 300;
+            font-style: normal;
         }
-        button {
+
+        @font-face {
+            font-family: 'Roboto';
+            src: url('fonts/roboto-regular.woff2') format('woff2'),
+                url('fonts/roboto-regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Roboto';
+            src: url('fonts/roboto-bold.woff2') format('woff2'),
+                url('fonts/roboto-bold.woff') format('woff');
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        :root {
+            color-scheme: light;
+            --bg: #f7f0e8;
+            --bg-strong: #12223c;
+            --surface: rgba(255, 255, 255, 0.76);
+            --surface-strong: rgba(255, 255, 255, 0.94);
+            --surface-soft: rgba(255, 248, 243, 0.88);
+            --text: #14213d;
+            --muted: #5f6574;
+            --border: rgba(20, 33, 61, 0.12);
+            --accent: #ff7a59;
+            --accent-strong: #ef5b2f;
+            --accent-secondary: #0f766e;
+            --accent-tertiary: #ffcf6b;
+            --shadow: 0 24px 54px rgba(20, 33, 61, 0.16);
+            --success: #0f766e;
+            --warning: #b45309;
+            --info: #1d4ed8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            position: relative;
+            width: 390px;
+            min-height: 620px;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Roboto', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 14% 16%, rgba(255, 122, 89, 0.32), transparent 28%),
+                radial-gradient(circle at 85% 10%, rgba(255, 207, 107, 0.25), transparent 24%),
+                radial-gradient(circle at 82% 82%, rgba(15, 118, 110, 0.18), transparent 30%),
+                linear-gradient(180deg, #fff8f2 0%, var(--bg) 100%);
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: absolute;
+            border-radius: 999px;
+            pointer-events: none;
+            filter: blur(10px);
+            opacity: 0.7;
+            animation: drift 16s ease-in-out infinite;
+        }
+
+        body::before {
+            top: -70px;
+            right: -20px;
+            width: 210px;
+            height: 210px;
+            background: rgba(255, 122, 89, 0.2);
+        }
+
+        body::after {
+            bottom: -120px;
+            left: -50px;
+            width: 250px;
+            height: 250px;
+            animation-delay: -5s;
+            background: rgba(15, 118, 110, 0.14);
+        }
+
+        main {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-height: 100%;
+            padding: 18px;
+        }
+
+        .card {
+            border: 1px solid var(--border);
+            border-radius: 26px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+        }
+
+        .hero-card {
+            position: relative;
+            overflow: hidden;
+            padding: 18px;
+            background:
+                linear-gradient(135deg, rgba(20, 33, 61, 0.96) 0%, rgba(20, 33, 61, 0.88) 52%, rgba(30, 64, 175, 0.82) 100%);
+            color: #fdf8f3;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            inset: auto -40px -80px auto;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 122, 89, 0.42), transparent 70%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        .hero-topline,
+        .hero-footer {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .eyebrow,
+        .readiness-badge,
+        .hero-pill,
+        .flow-state {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .eyebrow {
+            padding: 7px 10px;
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 248, 243, 0.82);
+        }
+
+        .readiness-badge {
+            padding: 7px 12px;
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff7f2;
+        }
+
+        .readiness-badge[data-tone="ready"] {
+            background: rgba(15, 118, 110, 0.28);
+        }
+
+        .readiness-badge[data-tone="partial"] {
+            background: rgba(180, 83, 9, 0.26);
+        }
+
+        .readiness-badge[data-tone="setup"] {
+            background: rgba(255, 122, 89, 0.22);
+        }
+
+        h1 {
+            position: relative;
+            z-index: 1;
+            margin: 18px 0 10px;
+            font-size: 1.9rem;
+            line-height: 0.98;
+            letter-spacing: -0.06em;
+            max-width: 9ch;
+        }
+
+        .hero-copy {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            max-width: 280px;
+            color: rgba(255, 248, 243, 0.74);
+            line-height: 1.55;
+            font-size: 0.93rem;
+        }
+
+        .readiness-meter {
+            position: relative;
+            z-index: 1;
+            margin-top: 18px;
+            height: 10px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .readiness-meter-fill {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--accent), var(--accent-tertiary), #67e8f9);
+            box-shadow: 0 0 24px rgba(255, 122, 89, 0.36);
+            transition: width 220ms ease;
+        }
+
+        .hero-footer {
+            margin-top: 16px;
+            justify-content: flex-start;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .hero-pill {
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 248, 243, 0.82);
+            font-size: 0.68rem;
+        }
+
+        .stats-card,
+        .flow-card,
+        .actions-card,
+        .status-card {
+            background: var(--surface);
+        }
+
+        .stats-card {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 12px;
+        }
+
+        .stat {
+            padding: 12px;
+            border-radius: 18px;
+            background: var(--surface-strong);
+            border: 1px solid rgba(20, 33, 61, 0.08);
+            transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+
+        .stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 24px rgba(20, 33, 61, 0.08);
+        }
+
+        .stat-label {
+            display: block;
+            color: var(--muted);
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            display: block;
+            margin-top: 8px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+        }
+
+        .stat-hint {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 0.74rem;
+        }
+
+        .flow-card {
+            padding: 14px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .section-heading strong {
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .section-heading span {
+            color: var(--muted);
+            font-size: 0.78rem;
+        }
+
+        .flow-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .flow-step {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 14px;
+            border-radius: 18px;
+            background: var(--surface-strong);
+            border: 1px solid rgba(20, 33, 61, 0.08);
+        }
+
+        .step-index {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(255, 122, 89, 0.16), rgba(15, 118, 110, 0.12));
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .step-copy strong {
+            display: block;
+            font-size: 0.9rem;
+        }
+
+        .step-copy span {
+            display: block;
+            margin-top: 3px;
+            color: var(--muted);
+            font-size: 0.78rem;
+            line-height: 1.4;
+        }
+
+        .flow-state {
+            padding: 7px 10px;
+            background: rgba(20, 33, 61, 0.06);
+            color: var(--muted);
+            font-size: 0.64rem;
+        }
+
+        .flow-state[data-tone="ready"] {
+            background: rgba(15, 118, 110, 0.12);
+            color: var(--success);
+        }
+
+        .flow-state[data-tone="warning"] {
+            background: rgba(180, 83, 9, 0.12);
+            color: var(--warning);
+        }
+
+        .flow-state[data-tone="info"] {
+            background: rgba(29, 78, 216, 0.12);
+            color: var(--info);
+        }
+
+        .actions-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 14px;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
             width: 100%;
-            padding: 10px;
-            margin-top: 10px;
+            padding: 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: left;
+            font: inherit;
+            transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-button:disabled {
+            cursor: wait;
+            opacity: 0.74;
+            transform: none;
+        }
+
+        .action-button.primary {
+            color: #fff8f3;
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            box-shadow: 0 18px 30px rgba(239, 91, 47, 0.3);
+        }
+
+        .action-button.secondary {
+            color: var(--text);
+            background: var(--surface-strong);
+            border: 1px solid rgba(20, 33, 61, 0.08);
+        }
+
+        .action-copy strong {
+            display: block;
+            font-size: 0.98rem;
+        }
+
+        .action-copy span {
+            display: block;
+            margin-top: 4px;
+            font-size: 0.8rem;
+            line-height: 1.45;
+            opacity: 0.84;
+        }
+
+        .action-arrow {
+            font-size: 1.16rem;
+            font-weight: 700;
+        }
+
+        .next-step {
+            padding: 14px;
+            border-radius: 20px;
+            background: var(--surface-soft);
+            border: 1px solid rgba(20, 33, 61, 0.08);
+        }
+
+        .next-step strong {
+            display: block;
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .next-step p {
+            margin: 8px 0 0;
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        .status-card {
+            margin-top: auto;
+            padding: 14px 16px;
+            border-radius: 22px;
+            background: rgba(20, 33, 61, 0.9);
+            color: #fdf7f2;
+            box-shadow: 0 18px 36px rgba(20, 33, 61, 0.24);
+        }
+
+        .status-topline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .status-topline strong {
+            font-size: 0.78rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.72;
+        }
+
+        .status-topline span {
+            font-size: 0.72rem;
+            opacity: 0.7;
+        }
+
+        .status-card p {
+            margin: 8px 0 0;
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        @keyframes drift {
+            0%, 100% {
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+            50% {
+                transform: translate3d(0, 16px, 0) scale(1.04);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.08);
+                opacity: 0.9;
+            }
         }
     </style>
 </head>
 <body>
-    <button id="gatherButton">Gather Tabs</button>
-    <button id="openTablistButton">Open Saved Tabs</button>
+    <main>
+        <section class="hero-card card">
+            <div class="hero-topline">
+                <span class="eyebrow">USTP launch pad</span>
+                <span class="readiness-badge" id="readinessBadge" data-tone="setup">Needs setup</span>
+            </div>
+            <h1>Make a window feel like a working brief.</h1>
+            <p class="hero-copy">Capture the current stack, open the workspace, and move from raw tabs into summaries, live source chat, and reusable agent skills.</p>
+            <div class="readiness-meter" aria-hidden="true">
+                <div class="readiness-meter-fill" id="readinessMeterFill"></div>
+            </div>
+            <div class="hero-footer" aria-label="Capabilities">
+                <span class="hero-pill">Capture</span>
+                <span class="hero-pill">Summarize</span>
+                <span class="hero-pill">Chat</span>
+                <span class="hero-pill">Skillify</span>
+            </div>
+        </section>
+
+        <section class="stats-card card" aria-label="Workspace statistics">
+            <div class="stat">
+                <span class="stat-label">Window</span>
+                <span class="stat-value" id="windowTabCount">0</span>
+                <span class="stat-hint">tabs open</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Workspace</span>
+                <span class="stat-value" id="savedTabCount">0</span>
+                <span class="stat-hint">pages saved</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Gemini</span>
+                <span class="stat-value" id="apiKeyState">No</span>
+                <span class="stat-hint">API ready</span>
+            </div>
+        </section>
+
+        <section class="flow-card card" aria-label="Workspace flow">
+            <div class="section-heading">
+                <strong>Flow Status</strong>
+                <span>Capture -> Review -> Run</span>
+            </div>
+            <div class="flow-list">
+                <div class="flow-step">
+                    <span class="step-index">1</span>
+                    <div class="step-copy">
+                        <strong>Capture the current window</strong>
+                        <span>Collect the tabs you want to turn into a research workspace.</span>
+                    </div>
+                    <span class="flow-state" id="captureState" data-tone="info">Checking</span>
+                </div>
+                <div class="flow-step">
+                    <span class="step-index">2</span>
+                    <div class="step-copy">
+                        <strong>Open the workspace</strong>
+                        <span>Review saved pages, summaries, PDFs, and generated skills.</span>
+                    </div>
+                    <span class="flow-state" id="workspaceState" data-tone="warning">Waiting</span>
+                </div>
+                <div class="flow-step">
+                    <span class="step-index">3</span>
+                    <div class="step-copy">
+                        <strong>Unlock Gemini features</strong>
+                        <span>Use live chat, summaries, and skill generation with your API key.</span>
+                    </div>
+                    <span class="flow-state" id="intelligenceState" data-tone="warning">Setup</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="actions-card card">
+            <button id="gatherButton" class="action-button primary">
+                <span class="action-copy">
+                    <strong>Gather This Window</strong>
+                    <span>Capture the current tabs and jump into a focused workspace.</span>
+                </span>
+                <span class="action-arrow">+</span>
+            </button>
+
+            <button id="openTablistButton" class="action-button secondary">
+                <span class="action-copy">
+                    <strong>Open Workspace</strong>
+                    <span>Review saved tabs, summarize content, and build page skills.</span>
+                </span>
+                <span class="action-arrow">></span>
+            </button>
+
+            <div class="next-step">
+                <strong id="nextActionHeading">Next move</strong>
+                <p id="nextActionBody">Checking the current workspace state and recommending the cleanest next step.</p>
+            </div>
+        </section>
+
+        <section class="status-card">
+            <div class="status-topline">
+                <strong>Workspace Status</strong>
+                <span id="popupFootnote">Checking...</span>
+            </div>
+            <p id="popupStatus">Checking your current workspace…</p>
+        </section>
+    </main>
+
     <script src="popup.js"></script>
 </body>
 </html>

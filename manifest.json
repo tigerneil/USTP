@@ -25,7 +25,6 @@
     "resources": [
       "tablist.html",
       "marked.min.js",
-      "lame.min.js",
       "prism.min.js",
       "prism.min.css",
       "fonts/*",
